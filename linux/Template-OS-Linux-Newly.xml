@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2019-05-22T09:13:21Z</date>
+    <date>2019-12-24T03:36:20Z</date>
     <groups>
         <group>
             <name>Funds - Linux</name>
@@ -920,7 +920,7 @@
                     <master_item/>
                 </item>
                 <item>
-                    <name>Read sectors per sec</name>
+                    <name>Read bytes per sec</name>
                     <type>0</type>
                     <snmp_community/>
                     <snmp_oid/>
@@ -931,7 +931,7 @@
                     <status>0</status>
                     <value_type>0</value_type>
                     <allowed_hosts/>
-                    <units/>
+                    <units>B/s</units>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -947,7 +947,7 @@
                     <publickey/>
                     <privatekey/>
                     <port/>
-                    <description>系统每秒读磁盘的扇区数，每扇区是512byte</description>
+                    <description>系统每秒读磁盘的byte数</description>
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
@@ -956,7 +956,12 @@
                     </applications>
                     <valuemap/>
                     <logtimefmt/>
-                    <preprocessing/>
+                    <preprocessing>
+                        <step>
+                            <type>1</type>
+                            <params>256</params>
+                        </step>
+                    </preprocessing>
                     <jmx_endpoint/>
                     <master_item/>
                 </item>
@@ -1002,7 +1007,7 @@
                     <master_item/>
                 </item>
                 <item>
-                    <name>Write sectors per sec</name>
+                    <name>Write bytes per sec</name>
                     <type>0</type>
                     <snmp_community/>
                     <snmp_oid/>
@@ -1013,7 +1018,7 @@
                     <status>0</status>
                     <value_type>0</value_type>
                     <allowed_hosts/>
-                    <units/>
+                    <units>B/s</units>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
                     <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1029,7 +1034,7 @@
                     <publickey/>
                     <privatekey/>
                     <port/>
-                    <description>系统每秒读磁盘的扇区数</description>
+                    <description>系统每秒写磁盘的byte数</description>
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
@@ -1038,7 +1043,12 @@
                     </applications>
                     <valuemap/>
                     <logtimefmt/>
-                    <preprocessing/>
+                    <preprocessing>
+                        <step>
+                            <type>1</type>
+                            <params>256</params>
+                        </step>
+                    </preprocessing>
                     <jmx_endpoint/>
                     <master_item/>
                 </item>
@@ -1070,7 +1080,7 @@
                     <publickey/>
                     <privatekey/>
                     <port/>
-                    <description/>
+                    <description>检查是否修改了linux用户密码</description>
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
@@ -1111,7 +1121,7 @@
                     <publickey/>
                     <privatekey/>
                     <port/>
-                    <description/>
+                    <description>可用物理内存比例</description>
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
@@ -1152,7 +1162,7 @@
                     <publickey/>
                     <privatekey/>
                     <port/>
-                    <description/>
+                    <description>使用的内存比例</description>
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
