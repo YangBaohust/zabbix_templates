@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/python3/bin/python3
 # coding: utf-8
 """
     Author: Danilo F. Chilene
@@ -26,16 +26,16 @@ class Checks(object):
     # check size & space
     
     def dbfilesize(self):
-        """Total size(MB) of all datafiles (without temp)"""
-        sql = "select to_char(sum(bytes/1024/1024), 'FM9999999990') retvalue from dba_data_files"
+        """Total size of all datafiles (without temp)"""
+        sql = "select to_char(sum(bytes), 'FM9999999999999990') retvalue from dba_data_files"
         self.cur.execute(sql)
         res = self.cur.fetchall()
         for i in res:
             print (i[0])
             
     def dbsize(self):
-        """Total size(MB) of all datafiles have been used (without temp)"""
-        sql = "select to_char(sum(a.bytes - f.bytes)/1024/1024, 'FM9999999990') retvalue from \
+        """Total size of all datafiles have been used (without temp)"""
+        sql = "select to_char(sum(a.bytes - f.bytes), 'FM9999999999999990') retvalue from \
               (select tablespace_name, sum(bytes) bytes from dba_data_files group by tablespace_name) a, \
               (select tablespace_name, sum(bytes) bytes from dba_free_space group by tablespace_name) f \
               where a.tablespace_name = f.tablespace_name"
@@ -45,7 +45,7 @@ class Checks(object):
             print (i[0])
 
     def show_tablespaces(self):
-        """List tablespace names in JSON format for Zabbix auto discover"""
+        """List tablespace names in json format for zabbix auto discover"""
         sql = "select tablespace_name from dba_tablespaces where contents <> 'TEMPORARY'"
         self.cur.execute(sql)
         res = self.cur.fetchall()
@@ -57,8 +57,8 @@ class Checks(object):
         print (json.dumps({'data': lst}))            
             
     def tablespace_used(self, name):
-        """Get tablespace size(MB) has been used"""
-        sql = "select to_char(sum(a.bytes - f.bytes)/1024/1024, 'FM9999999990') retvalue from \
+        """Get tablespace size has been used"""
+        sql = "select to_char(sum(a.bytes - f.bytes), 'FM9999999999999990') retvalue from \
               (select tablespace_name, sum(bytes) bytes from dba_data_files group by tablespace_name) a, \
               (select tablespace_name, sum(bytes) bytes from dba_free_space group by tablespace_name) f \
               where a.tablespace_name = f.tablespace_name and a.tablespace_name = '{0}'".format(name)
@@ -80,7 +80,7 @@ class Checks(object):
             print (i[0])            
             
     def show_tablespaces_temp(self):
-        """List temporary tablespace names in JSON format for Zabbix auto discover"""
+        """List temporary tablespace names in json format for zabbix auto discover"""
         sql = "select tablespace_name from dba_tablespaces where contents = 'TEMPORARY'"
         self.cur.execute(sql)
         res = self.cur.fetchall()
@@ -104,7 +104,7 @@ class Checks(object):
             print (i[0])        
      
     def show_asm_volumes(self):
-        """List ASM volumes in JSON format for Zabbix auto discover"""
+        """List asm volumes in json format for zabbix auto discover"""
         sql = "select name from v$asm_diskgroup"
         self.cur.execute(sql)
         res = self.cur.fetchall()
@@ -116,7 +116,7 @@ class Checks(object):
         print (json.dumps({'data': lst}))
 
     def asm_volume_use(self, name):
-        """Get ASM volume usage"""
+        """Get asm volume usage"""
         sql = "select to_char(100 * (1 - usable_file_mb*(decode(type,'EXTERN',1,'NORMAL',3,'HIGH',5))/total_mb), 'FM9990') \
               retvalue from v$asm_diskgroup where name = '{0}'".format(name)
         self.cur.execute(sql)
@@ -125,8 +125,8 @@ class Checks(object):
             print (i[0])
 
     def fra_use(self):
-        """Query the Fast Recovery Area usage"""
-        sql = "select to_char(space_used*100/space_limit, 'FM9990') retvalue from v$recovery_file_dest"
+        """Query the fast recovery area usage"""
+        sql = "select nvl((select to_char(space_used*100/space_limit, 'FM9990') retvalue from v$recovery_file_dest), 0) from dual"
         self.cur.execute(sql)
         res = self.cur.fetchall()
         for i in res:
@@ -135,7 +135,7 @@ class Checks(object):
     # check user    
                               
     def show_users(self):
-        """List open user in JSON format for Zabbix auto discover"""
+        """List open user in json format for zabbix auto discover"""
         sql = "select username from dba_users where account_status = 'OPEN'"
         self.cur.execute(sql)
         res = self.cur.fetchall()
@@ -159,7 +159,7 @@ class Checks(object):
     
     def query_sessions(self):
         """Query active sessions"""
-        sql = "select count(*) retvalue from v$session where status = 'ACTIVE'"
+        sql = "select count(*) retvalue from v$session where status = 'ACTIVE' and type <> 'BACKGROUND'"
         self.cur.execute(sql)
         res = self.cur.fetchall()
         for i in res:
@@ -175,8 +175,8 @@ class Checks(object):
             print (i[0])                
                         
     def query_lock(self):
-        """Query table is locked over 10 minites"""
-        sql = "select count(*) retvalue from v$lock where type in('TM', 'TX') and ctime > 600"
+        """Query max lock time"""
+        sql = "select nvl(retvalue,0) retvalue from (select max(ctime) retvalue from v$lock vk, dba_objects ob where vk.type in('TM') and vk.id1=ob.object_id and ob.temporary<>'Y')"
         self.cur.execute(sql)
         res = self.cur.fetchall()
         for i in res:
@@ -271,8 +271,8 @@ class Checks(object):
             print (i[0])
 
     def netsent(self):
-        """Bytes(MB) sent via SQL*Net to client"""
-        sql = "select to_char(value/1024/1024, 'FM99999999999999990') retvalue from v$sysstat \
+        """Bytes sent via SQL*Net to client"""
+        sql = "select to_char(value, 'FM99999999999999999999990') retvalue from v$sysstat \
               where name = 'bytes sent via SQL*Net to client'"
         self.cur.execute(sql)
         res = self.cur.fetchall()
@@ -280,8 +280,8 @@ class Checks(object):
             print (i[0])
 
     def netresv(self):
-        """Bytes(MB) received via SQL*Net from client"""
-        sql = "select to_char(value/1024/1024, 'FM99999999999999990') retvalue from v$sysstat \
+        """Bytes received via SQL*Net from client"""
+        sql = "select to_char(value/1024/1024, 'FM99999999999999999999990') retvalue from v$sysstat \
               where name = 'bytes received via SQL*Net from client'"
         self.cur.execute(sql)
         res = self.cur.fetchall()
@@ -297,7 +297,7 @@ class Checks(object):
         self.cur.execute(sql)
         res = self.cur.fetchall()
         for i in res:
-            print i[0]    
+            print (i[0])    
       
     # event statistics  
 
@@ -431,6 +431,24 @@ class Checks(object):
         for i in res:
             print (i[0])
 
+    # check dataguard status
+    def check_dg_lag(self, name):
+        """Check dataguard lag, if database is primary, then return 0, if database is dataguard, return lag time(s)"""
+        sql = "select database_role from v$database"
+        self.cur.execute(sql)
+        res = self.cur.fetchone()[0]
+        if res == 'PRIMARY':
+            print (0)
+        else:
+            sql = """select decode(value, null, -1000, value) lag from(
+                  select substr(value, 2, 2) * 86400 + substr(value, 5, 2) * 3600 
+                  + substr(value, 8, 2) * 60 + substr(value, 11, 2) value
+                  from v$dataguard_stats where name = '{0} lag')""".format(name)
+            self.cur.execute(sql)
+            res = self.cur.fetchall()
+            for i in res:
+                print (i[0]) 
+
             
 class Main(Checks):
     def __init__(self):
@@ -484,3 +502,4 @@ class Main(Checks):
 if __name__ == "__main__":
     main = Main()
     main()
+
